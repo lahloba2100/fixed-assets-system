@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>استيراد الأصول من ملف Excel</h2>
+    
+    <div class="card">
+        <div class="card-header">
+            تحميل ملف Excel
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="{{ form.excel_file.id_for_label }}">{{ form.excel_file.label }}</label>
+                    {{ form.excel_file }}
+                    <small class="form-text text-muted">{{ form.excel_file.help_text }}</small>
+                    {% if form.excel_file.errors %}
+                        <div class="alert alert-danger">
+                            {{ form.excel_file.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <button type="submit" class="btn btn-primary mt-3">تحميل الملف</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="card mt-4">
+        <div class="card-header">
+            تعليمات الاستيراد
+        </div>
+        <div class="card-body">
+            <h5>متطلبات ملف Excel:</h5>
+            <ul>
+                <li>يجب أن يحتوي الملف على صفحة واحدة على الأقل تحتوي على بيانات الأصول.</li>
+                <li>يجب أن يحتوي الصف الأول على أسماء الأعمدة.</li>
+                <li>الحقول المطلوبة: رقم الأصل، وصف الأصل، المجموعة الرئيسية، تاريخ الشراء، تكلفة الشراء، الموقع، الموظف العهدة، نسبة الإهلاك السنوية.</li>
+            </ul>
+            
+            <h5>خطوات الاستيراد:</h5>
+            <ol>
+                <li>تحميل ملف Excel.</li>
+                <li>مطابقة أعمدة الملف مع حقول النظام.</li>
+                <li>معاينة البيانات والتحقق من صحتها.</li>
+                <li>تأكيد الاستيراد.</li>
+            </ol>
+        </div>
+    </div>
+</div>
+{% endblock %}

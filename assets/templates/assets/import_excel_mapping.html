@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>مطابقة أعمدة ملف Excel</h2>
+    
+    <div class="card">
+        <div class="card-header">
+            ربط أعمدة ملف Excel بحقول النظام
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="alert alert-info">
+                    يرجى اختيار العمود المقابل لكل حقل من حقول النظام. الحقول المميزة بـ * مطلوبة.
+                </div>
+                
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>حقل النظام</th>
+                            <th>عمود Excel</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for field, label in field_mapping.items %}
+                        <tr>
+                            <td>
+                                {{ label }}
+                                {% if field in 'asset_tag,description,group1,purchase_date,purchase_cost,location,custodian,depreciation_rate' %}
+                                <span class="text-danger">*</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <select name="{{ field }}" class="form-control">
+                                    <option value="">-- اختر العمود --</option>
+                                    {% for column in excel_columns %}
+                                    <option value="{{ column }}" {% if column_mapping.field == column %}selected{% endif %}>{{ column }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">معاينة البيانات</button>
+                    <a href="{% url 'assets:import_excel' %}" class="btn btn-secondary">رجوع</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

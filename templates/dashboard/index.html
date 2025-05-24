@@ -1,0 +1,349 @@
+{% extends "base.html" %}
+
+{% block title %}لوحة التحكم - نظام إدارة الأصول الثابتة{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">لوحة التحكم</h1>
+        <div>
+            <span class="text-muted">{{ today_date }}</span>
+        </div>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-right-primary h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                إجمالي الأصول النشطة</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ active_assets_count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-cubes fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-light">
+                    <a href="{% url 'assets:asset_list' %}" class="text-decoration-none">
+                        <small>عرض التفاصيل <i class="fas fa-arrow-left"></i></small>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-right-success h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                إجمالي قيمة الأصول</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_assets_value|floatformat:2 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-light">
+                    <a href="{% url 'reports:asset_report' %}" class="text-decoration-none">
+                        <small>عرض التقرير <i class="fas fa-arrow-left"></i></small>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-right-info h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                إجمالي الإهلاك المتراكم</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_depreciation|floatformat:2 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-light">
+                    <a href="{% url 'reports:depreciation_report' %}" class="text-decoration-none">
+                        <small>عرض التقرير <i class="fas fa-arrow-left"></i></small>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-right-warning h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                الأصول المستبعدة</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ disposed_assets_count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-trash-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-light">
+                    <a href="{% url 'reports:disposal_report' %}" class="text-decoration-none">
+                        <small>عرض التقرير <i class="fas fa-arrow-left"></i></small>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Recent Assets -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold">أحدث الأصول المضافة</h6>
+                    <a href="{% url 'assets:asset_list' %}" class="btn btn-sm btn-primary">
+                        عرض الكل
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>رقم الأصل</th>
+                                    <th>الوصف</th>
+                                    <th>تاريخ الشراء</th>
+                                    <th>التكلفة</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for asset in recent_assets %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'assets:asset_detail' asset.id %}">
+                                            {{ asset.asset_tag }}
+                                        </a>
+                                    </td>
+                                    <td>{{ asset.description }}</td>
+                                    <td>{{ asset.purchase_date }}</td>
+                                    <td>{{ asset.purchase_cost|floatformat:2 }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">لا توجد أصول مضافة حديثاً</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Depreciation -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold">أحدث قيود الإهلاك</h6>
+                    <a href="{% url 'assets:depreciation_management' %}" class="btn btn-sm btn-primary">
+                        عرض الكل
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>رقم الأصل</th>
+                                    <th>تاريخ القيد</th>
+                                    <th>مبلغ الإهلاك</th>
+                                    <th>الحالة</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for entry in recent_depreciation %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'assets:asset_detail' entry.asset.id %}">
+                                            {{ entry.asset.asset_tag }}
+                                        </a>
+                                    </td>
+                                    <td>{{ entry.entry_date }}</td>
+                                    <td>{{ entry.amount|floatformat:2 }}</td>
+                                    <td>
+                                        {% if entry.posted %}
+                                        <span class="badge bg-success">مرحل</span>
+                                        {% else %}
+                                        <span class="badge bg-warning">غير مرحل</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">لا توجد قيود إهلاك حديثة</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Assets by Group -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold">توزيع الأصول حسب المجموعة</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; height:300px;">
+                        <canvas id="assetsByGroupChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assets by Location -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold">توزيع الأصول حسب الموقع</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; height:300px;">
+                        <canvas id="assetsByLocationChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold">إجراءات سريعة</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% if perms.assets.add_asset %}
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <a href="{% url 'assets:asset_create' %}" class="btn btn-primary btn-block">
+                                <i class="fas fa-plus-circle me-2"></i> إضافة أصل جديد
+                            </a>
+                        </div>
+                        {% endif %}
+                        
+                        {% if perms.assets.add_depreciationentry %}
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <a href="{% url 'assets:depreciation_management' %}" class="btn btn-info btn-block">
+                                <i class="fas fa-calculator me-2"></i> حساب الإهلاك
+                            </a>
+                        </div>
+                        {% endif %}
+                        
+                        {% if perms.assets.add_assettransfer %}
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <a href="{% url 'assets:transfer_create' %}" class="btn btn-success btn-block">
+                                <i class="fas fa-exchange-alt me-2"></i> نقل أصل
+                            </a>
+                        </div>
+                        {% endif %}
+                        
+                        {% if perms.assets.view_asset %}
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <a href="{% url 'reports:asset_report' %}" class="btn btn-secondary btn-block">
+                                <i class="fas fa-file-alt me-2"></i> إنشاء تقرير
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Assets by Group Chart
+    var groupCtx = document.getElementById('assetsByGroupChart').getContext('2d');
+    var groupChart = new Chart(groupCtx, {
+        type: 'pie',
+        data: {
+            labels: {{ group_labels|safe }},
+            datasets: [{
+                data: {{ group_data|safe }},
+                backgroundColor: [
+                    '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b',
+                    '#5a5c69', '#858796', '#6f42c1', '#20c9a6', '#fd7e14'
+                ],
+                hoverBackgroundColor: [
+                    '#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#be2617',
+                    '#484a54', '#717384', '#5d36a4', '#17a689', '#dc6502'
+                ],
+                hoverBorderColor: "rgba(234, 236, 244, 1)",
+            }],
+        },
+        options: {
+            maintainAspectRatio: false,
+            tooltips: {
+                backgroundColor: "rgb(255,255,255)",
+                bodyFontColor: "#858796",
+                borderColor: '#dddfeb',
+                borderWidth: 1,
+                xPadding: 15,
+                yPadding: 15,
+                displayColors: false,
+                caretPadding: 10,
+            },
+            legend: {
+                display: true,
+                position: 'bottom'
+            },
+            cutoutPercentage: 0,
+        },
+    });
+
+    // Assets by Location Chart
+    var locationCtx = document.getElementById('assetsByLocationChart').getContext('2d');
+    var locationChart = new Chart(locationCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ location_labels|safe }},
+            datasets: [{
+                label: 'عدد الأصول',
+                data: {{ location_data|safe }},
+                backgroundColor: '#4e73df',
+                borderColor: '#4e73df',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+</script>
+{% endblock %}

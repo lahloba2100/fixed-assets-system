@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>معاينة البيانات قبل الاستيراد</h2>
+    
+    <div class="alert alert-info">
+        إجمالي السجلات: {{ total_rows }} | عدد الأخطاء: {{ error_count }}
+    </div>
+    
+    {% if errors %}
+    <div class="card mb-4">
+        <div class="card-header bg-danger text-white">
+            أخطاء في البيانات
+        </div>
+        <div class="card-body">
+            <div class="alert alert-warning">
+                يرجى تصحيح الأخطاء التالية في ملف Excel ثم إعادة تحميله.
+            </div>
+            
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>رقم الصف</th>
+                        <th>الأخطاء</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for error in errors %}
+                    <tr>
+                        <td>{{ error.row }}</td>
+                        <td>
+                            <ul>
+                                {% for err in error.errors %}
+                                <li>{{ err }}</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="card">
+        <div class="card-header">
+            معاينة البيانات
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            {% for field_name in preview_data.0.keys %}
+                            <th>{{ field_name }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in preview_data %}
+                        <tr>
+                            {% for value in row.values %}
+                            <td>{{ value }}</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="alert alert-info mt-3">
+                يتم عرض {{ preview_data|length }} سجلات فقط للمعاينة من إجمالي {{ total_rows }} سجل.
+            </div>
+            
+            <div class="mt-3">
+                {% if not errors %}
+                <button id="import-btn" class="btn btn-success">تأكيد الاستيراد</button>
+                {% endif %}
+                <a href="{% url 'assets:import_excel_mapping' file_id=file_id %}" class="btn btn-secondary">رجوع</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        $('#import-btn').click(function() {
+            $(this).prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> جاري الاستيراد...');
+            
+            $.ajax({
+                url: "{% url 'assets:import_excel_process' file_id=file_id %}",
+                type: "POST",
+                data: {
+                    csrfmiddlewaretoken: "{{ csrf_token }}"
+                },
+                dataType: "json",
+                success: function(response) {
+                    if (response.status === 'success') {
+                        alert(response.message);
+                        window.location.href = response.redirect_url;
+                    } else {
+                        alert('خطأ: ' + response.message);
+                        $('#import-btn').prop('disabled', false).text('تأكيد الاستيراد');
+                    }
+                },
+                error: function() {
+                    alert('حدث خطأ أثناء الاتصال بالخادم');
+                    $('#import-btn').prop('disabled', false).text('تأكيد الاستيراد');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
+
+{% endblock %}

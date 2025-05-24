@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+
+{% block title %}تفاصيل الأصل - نظام إدارة الأصول الثابتة{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">تفاصيل الأصل: {{ asset.asset_tag }}</h1>
+        <div>
+            {% if perms.assets.change_asset and asset.status == 'active' %}
+            <a href="{% url 'assets:asset_update' asset.id %}" class="btn btn-primary">
+                <i class="fas fa-edit me-2"></i> تعديل
+            </a>
+            {% endif %}
+            <a href="{% url 'assets:asset_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-right me-2"></i> العودة للقائمة
+            </a>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Asset Details -->
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold">معلومات الأصل</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <tbody>
+                                <tr>
+                                    <th style="width: 30%">رقم الأصل</th>
+                                    <td>{{ asset.asset_tag }}</td>
+                                </tr>
+                                <tr>
+                                    <th>الوصف</th>
+                                    <td>{{ asset.description }}</td>
+                                </tr>
+                                <tr>
+                                    <th>المجموعة الرئيسية</th>
+                                    <td>{{ asset.group1.name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>المجموعة الفرعية</th>
+                                    <td>{{ asset.group2.name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>الرقم التسلسلي</th>
+                                    <td>{{ asset.serial_number|default:"غير متوفر" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>الموقع</th>
+                                    <td>{{ asset.location.name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>العهدة</th>
+                                    <td>{{ asset.custodian.name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>الحالة</th>
+                                    <td>
+                                        {% if asset.status == 'active' %}
+                                        <span class="badge bg-success">نشط</span>
+                                        {% elif asset.status == 'disposed' %}
+                                        <span class="badge bg-danger">مستبعد</span>
+                                        {% elif asset.status == 'transferred' %}
+                                        <span class="badge bg-info">منقول</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">{{ asset.get_status_display }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>ملاحظات</th>
+                                    <td>{{ asset.notes|default:"لا توجد ملاحظات" }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Financial Details -->
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold">المعلومات المالية</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <tbody>
+                                <tr>
+                                    <th style="width: 40%">تاريخ الشراء</th>
+                                    <td>{{ asset.purchase_date }}</td>
+                                </tr>
+                                <tr>
+                                    <th>تكلفة الشراء</th>
+                                    <td>{{ asset.purchase_cost|floatformat:2 }}</td>
+                                </tr>
+                                <tr>
+                                    <th>نسبة الإهلاك السنوية</th>
+                                    <td>{{ asset.depreciation_rate }}%</td>
+                                </tr>
+                                <tr>
+                                    <th>العمر الإنتاجي (سنوات)</th>
+                                    <td>{{ asset.useful_life_years }}</td>
+                                </tr>
+                                <tr>
+                                    <th>القيمة التخريدية</th>
+                                    <td>{{ asset.salvage_value|floatformat:2 }}</td>
+                                </tr>
+                                <tr>
+                                    <th>مجمع الإهلاك</th>
+                                    <td>{{ accumulated_depreciation|floatformat:2 }}</td>
+                                </tr>
+                                <tr>
+                                    <th>القيمة الدفترية الحالية</th>
+                                    <td>{{ current_book_value|floatformat:2 }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold">إجراءات سريعة</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% if perms.assets.add_assettransfer and asset.status == 'active' %}
+                        <div class="col-md-6 mb-2">
+                            <a href="{% url 'assets:transfer_create' %}?asset={{ asset.id }}" class="btn btn-success btn-block w-100">
+                                <i class="fas fa-exchange-alt me-2"></i> نقل الأصل
+                            </a>
+                        </div>
+                        {% endif %}
+                        
+                        {% if perms.assets.add_assetdisposal and asset.status == 'active' %}
+                        <div class="col-md-6 mb-2">
+                            <a href="{% url 'assets:disposal_create' %}?asset={{ asset.id }}" class="btn btn-danger btn-block w-100">
+                                <i class="fas fa-trash-alt me-2"></i> استبعاد الأصل
+                            </a>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="col-md-6 mb-2">
+                            <a href="{% url 'reports:asset_report' %}?asset={{ asset.id }}&export=pdf" class="btn btn-info btn-block w-100">
+                                <i class="fas fa-file-pdf me-2"></i> تصدير PDF
+                            </a>
+                        </div>
+                        
+                        <div class="col-md-6 mb-2">
+                            <a href="{% url 'reports:depreciation_report' %}?asset={{ asset.id }}" class="btn btn-secondary btn-block w-100">
+                                <i class="fas fa-chart-line me-2"></i> تقرير الإهلاك
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Depreciation History -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold">تاريخ الإهلاك</h6>
+            <div>
+                <a href="{% url 'reports:depreciation_report' %}?asset={{ asset.id }}&export=excel" class="btn btn-sm btn-success">
+                    <i class="fas fa-file-excel me-1"></i> تصدير Excel
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>تاريخ القيد</th>
+                            <th>مبلغ الإهلاك</th>
+                            <th>مجمع الإهلاك</th>
+                            <th>القيمة الدفترية</th>
+                            <th>الحالة</th>
+                            <th>تاريخ الترحيل</th>
+                            <th>تم الترحيل بواسطة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in depreciation_entries %}
+                        <tr>
+                            <td>{{ entry.entry_date }}</td>
+                            <td>{{ entry.amount|floatformat:2 }}</td>
+                            <td>{{ entry.accumulated_depreciation|floatformat:2 }}</td>
+                            <td>{{ entry.book_value|floatformat:2 }}</td>
+                            <td>
+                                {% if entry.posted %}
+                                <span class="badge bg-success">مرحل</span>
+                                {% else %}
+                                <span class="badge bg-warning">غير مرحل</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ entry.posted_at|default:"-" }}</td>
+                            <td>{{ entry.posted_by.username|default:"-" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">لا توجد قيود إهلاك لهذا الأصل</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Transfer History -->
+    {% if transfer_history %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h6 class="m-0 font-weight-bold">تاريخ النقل</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>تاريخ النقل</th>
+                            <th>من الموقع</th>
+                            <th>إلى الموقع</th>
+                            <th>من الموظف</th>
+                            <th>إلى الموظف</th>
+                            <th>ملاحظات</th>
+                            <th>تم بواسطة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transfer in transfer_history %}
+                        <tr>
+                            <td>{{ transfer.transfer_date }}</td>
+                            <td>{{ transfer.from_location.name }}</td>
+                            <td>{{ transfer.to_location.name }}</td>
+                            <td>{{ transfer.from_custodian.name|default:"-" }}</td>
+                            <td>{{ transfer.to_custodian.name|default:"-" }}</td>
+                            <td>{{ transfer.notes|default:"-" }}</td>
+                            <td>{{ transfer.created_by.username }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Disposal Information -->
+    {% if disposal %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h6 class="m-0 font-weight-bold">معلومات الاستبعاد</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <tbody>
+                        <tr>
+                            <th style="width: 30%">تاريخ الاستبعاد</th>
+                            <td>{{ disposal.disposal_date }}</td>
+                        </tr>
+                        <tr>
+                            <th>نوع الاستبعاد</th>
+                            <td>{{ disposal.get_disposal_type_display }}</td>
+                        </tr>
+                        {% if disposal.disposal_type == 'sold' %}
+                        <tr>
+                            <th>عائد البيع</th>
+                            <td>{{ disposal.sale_proceeds|floatformat:2 }}</td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <th>ملاحظات</th>
+                            <td>{{ disposal.notes|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th>تم بواسطة</th>
+                            <td>{{ disposal.created_by.username }}</td>
+                        </tr>
+                        <tr>
+                            <th>تاريخ الإنشاء</th>
+                            <td>{{ disposal.created_at }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}استبعاد الأصول - نظام إدارة الأصول الثابتة{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">استبعاد الأصول</h1>
+        {% if perms.assets.add_assetdisposal %}
+        <div>
+            <a href="{% url 'assets:disposal_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus-circle me-2"></i> استبعاد أصل جديد
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Filter Card -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h6 class="m-0 font-weight-bold">تصفية النتائج</h6>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label for="disposal_type" class="form-label">نوع الاستبعاد</label>
+                    <select name="disposal_type" id="disposal_type" class="form-select">
+                        <option value="">جميع الأنواع</option>
+                        <option value="scrapped" {% if request.GET.disposal_type == 'scrapped' %}selected{% endif %}>تكهين</option>
+                        <option value="sold" {% if request.GET.disposal_type == 'sold' %}selected{% endif %}>بيع</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="location" class="form-label">الموقع</label>
+                    <select name="location" id="location" class="form-select">
+                        <option value="">جميع المواقع</option>
+                        {% for location in locations %}
+                        <option value="{{ location.id }}" {% if request.GET.location == location.id|stringformat:"i" %}selected{% endif %}>{{ location.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="start_date" class="form-label">من تاريخ</label>
+                    <input type="date" name="start_date" id="start_date" class="form-control" value="{{ request.GET.start_date|default:'' }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="end_date" class="form-label">إلى تاريخ</label>
+                    <input type="date" name="end_date" id="end_date" class="form-control" value="{{ request.GET.end_date|default:'' }}">
+                </div>
+                <div class="col-12 mt-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-filter me-2"></i> تصفية
+                    </button>
+                    <a href="{% url 'assets:disposal_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-redo me-2"></i> إعادة تعيين
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Disposals Table -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold">عمليات استبعاد الأصول</h6>
+            <div>
+                <a href="{% url 'reports:disposal_report' %}?export=excel{% if request.GET.disposal_type %}&disposal_type={{ request.GET.disposal_type }}{% endif %}{% if request.GET.location %}&location={{ request.GET.location }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}" class="btn btn-sm btn-success">
+                    <i class="fas fa-file-excel me-1"></i> تصدير Excel
+                </a>
+                <a href="{% url 'reports:disposal_report' %}?export=pdf{% if request.GET.disposal_type %}&disposal_type={{ request.GET.disposal_type }}{% endif %}{% if request.GET.location %}&location={{ request.GET.location }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}" class="btn btn-sm btn-danger">
+                    <i class="fas fa-file-pdf me-1"></i> تصدير PDF
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>رقم الأصل</th>
+                            <th>وصف الأصل</th>
+                            <th>تاريخ الاستبعاد</th>
+                            <th>نوع الاستبعاد</th>
+                            <th>القيمة الدفترية</th>
+                            <th>عائد البيع</th>
+                            <th>الربح/الخسارة</th>
+                            <th>تم بواسطة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for disposal in disposals %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'assets:asset_detail' disposal.asset.id %}">
+                                    {{ disposal.asset.asset_tag }}
+                                </a>
+                            </td>
+                            <td>{{ disposal.asset.description }}</td>
+                            <td>{{ disposal.disposal_date }}</td>
+                            <td>
+                                {% if disposal.disposal_type == 'scrapped' %}
+                                <span class="badge bg-secondary">تكهين</span>
+                                {% elif disposal.disposal_type == 'sold' %}
+                                <span class="badge bg-success">بيع</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ disposal.book_value|floatformat:2 }}</td>
+                            <td>{{ disposal.sale_proceeds|default:0|floatformat:2 }}</td>
+                            <td>
+                                {% with profit_loss=disposal.sale_proceeds|default:0|sub:disposal.book_value %}
+                                {% if profit_loss > 0 %}
+                                <span class="text-success">{{ profit_loss|floatformat:2 }}</span>
+                                {% elif profit_loss < 0 %}
+                                <span class="text-danger">{{ profit_loss|floatformat:2 }}</span>
+                                {% else %}
+                                <span>0.00</span>
+                                {% endif %}
+                                {% endwith %}
+                            </td>
+                            <td>{{ disposal.created_by.username }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'assets:disposal_detail' disposal.id %}" class="btn btn-sm btn-info" title="عرض">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if perms.assets.change_assetdisposal %}
+                                    <a href="{% url 'assets:disposal_update' disposal.id %}" class="btn btn-sm btn-primary" title="تعديل">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center">لا توجد عمليات استبعاد مطابقة للتصفية</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            {% if disposals.has_other_pages %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center mt-4">
+                    {% if disposals.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="First">
+                            <span aria-hidden="true">&laquo;&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ disposals.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" aria-label="First">
+                            <span aria-hidden="true">&laquo;&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in disposals.paginator.page_range %}
+                    {% if disposals.number == num %}
+                    <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+                    {% elif num > disposals.number|add:'-3' and num < disposals.number|add:'3' %}
+                    <li class="page-item"><a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a></li>
+                    {% endif %}
+                    {% endfor %}
+                    
+                    {% if disposals.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ disposals.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ disposals.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Last">
+                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" aria-label="Last">
+                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+
+{% block title %}إدارة الإهلاك - نظام إدارة الأصول الثابتة{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">إدارة الإهلاك</h1>
+        <div>
+            <a href="{% url 'reports:depreciation_report' %}" class="btn btn-secondary">
+                <i class="fas fa-file-alt me-2"></i> تقارير الإهلاك
+            </a>
+        </div>
+    </div>
+    
+    <!-- Calculate Depreciation Card -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h6 class="m-0 font-weight-bold">حساب الإهلاك الشهري</h6>
+        </div>
+        <div class="card-body">
+            <form method="post" action="{% url 'assets:calculate_depreciation' %}" class="row g-3">
+                {% csrf_token %}
+                
+                <div class="col-md-4">
+                    <label for="month" class="form-label">الشهر</label>
+                    <select name="month" id="month" class="form-select">
+                        <option value="1" {% if current_month == 1 %}selected{% endif %}>يناير</option>
+                        <option value="2" {% if current_month == 2 %}selected{% endif %}>فبراير</option>
+                        <option value="3" {% if current_month == 3 %}selected{% endif %}>مارس</option>
+                        <option value="4" {% if current_month == 4 %}selected{% endif %}>أبريل</option>
+                        <option value="5" {% if current_month == 5 %}selected{% endif %}>مايو</option>
+                        <option value="6" {% if current_month == 6 %}selected{% endif %}>يونيو</option>
+                        <option value="7" {% if current_month == 7 %}selected{% endif %}>يوليو</option>
+                        <option value="8" {% if current_month == 8 %}selected{% endif %}>أغسطس</option>
+                        <option value="9" {% if current_month == 9 %}selected{% endif %}>سبتمبر</option>
+                        <option value="10" {% if current_month == 10 %}selected{% endif %}>أكتوبر</option>
+                        <option value="11" {% if current_month == 11 %}selected{% endif %}>نوفمبر</option>
+                        <option value="12" {% if current_month == 12 %}selected{% endif %}>ديسمبر</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-4">
+                    <label for="year" class="form-label">السنة</label>
+                    <input type="number" name="year" id="year" class="form-control" value="{{ current_year }}">
+                </div>
+                
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-calculator me-2"></i> حساب الإهلاك
+                    </button>
+                </div>
+            </form>
+            
+            <div class="alert alert-info mt-3">
+                <i class="fas fa-info-circle me-2"></i> يتم حساب الإهلاك باستخدام طريقة القسط الثابت. سيتم إنشاء قيود الإهلاك لجميع الأصول النشطة للشهر المحدد.
+            </div>
+        </div>
+    </div>
+    
+    <!-- Unposted Entries Card -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold">قيود الإهلاك غير المرحلة</h6>
+            <div>
+                <a href="{% url 'reports:depreciation_report' %}?posted=false&export=excel" class="btn btn-sm btn-success">
+                    <i class="fas fa-file-excel me-1"></i> تصدير Excel
+                </a>
+                <a href="{% url 'reports:depreciation_report' %}?posted=false&export=pdf" class="btn btn-sm btn-danger">
+                    <i class="fas fa-file-pdf me-1"></i> تصدير PDF
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if unposted_entries %}
+            <form method="post" action="{% url 'assets:post_depreciation' %}">
+                {% csrf_token %}
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="select-all">
+                                        <label class="form-check-label" for="select-all">تحديد الكل</label>
+                                    </div>
+                                </th>
+                                <th>رقم الأصل</th>
+                                <th>وصف الأصل</th>
+                                <th>تاريخ القيد</th>
+                                <th>مبلغ الإهلاك</th>
+                                <th>مجمع الإهلاك</th>
+                                <th>القيمة الدفترية</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for entry in unposted_entries %}
+                            <tr>
+                                <td>
+                                    <div class="form-check">
+                                        <input class="form-check-input entry-checkbox" type="checkbox" name="entry_ids" value="{{ entry.id }}" id="entry-{{ entry.id }}">
+                                        <label class="form-check-label" for="entry-{{ entry.id }}"></label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <a href="{% url 'assets:asset_detail' entry.asset.id %}">
+                                        {{ entry.asset.asset_tag }}
+                                    </a>
+                                </td>
+                                <td>{{ entry.asset.description }}</td>
+                                <td>{{ entry.entry_date }}</td>
+                                <td>{{ entry.amount|floatformat:2 }}</td>
+                                <td>{{ entry.accumulated_depreciation|floatformat:2 }}</td>
+                                <td>{{ entry.book_value|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <button type="submit" class="btn btn-success mt-3" id="post-btn" disabled>
+                    <i class="fas fa-check-circle me-2"></i> ترحيل القيود المحددة
+                </button>
+            </form>
+            
+            <!-- Pagination -->
+            {% if unposted_entries.has_other_pages %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center mt-4">
+                    {% if unposted_entries.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1" aria-label="First">
+                            <span aria-hidden="true">&laquo;&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ unposted_entries.previous_page_number }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" aria-label="First">
+                            <span aria-hidden="true">&laquo;&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in unposted_entries.paginator.page_range %}
+                    {% if unposted_entries.number == num %}
+                    <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+                    {% elif num > unposted_entries.number|add:'-3' and num < unposted_entries.number|add:'3' %}
+                    <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                    {% endif %}
+                    {% endfor %}
+                    
+                    {% if unposted_entries.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ unposted_entries.next_page_number }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ unposted_entries.paginator.num_pages }}" aria-label="Last">
+                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" aria-label="Last">
+                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+            
+            {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i> لا توجد قيود إهلاك غير مرحلة حالياً.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Select all checkbox
+        $('#select-all').change(function() {
+            $('.entry-checkbox').prop('checked', $(this).prop('checked'));
+            updatePostButton();
+        });
+        
+        // Individual checkboxes
+        $('.entry-checkbox').change(function() {
+            updatePostButton();
+            
+            // Update select all checkbox
+            if ($('.entry-checkbox:checked').length === $('.entry-checkbox').length) {
+                $('#select-all').prop('checked', true);
+            } else {
+                $('#select-all').prop('checked', false);
+            }
+        });
+        
+        function updatePostButton() {
+            var anyChecked = $('.entry-checkbox:checked').length > 0;
+            $('#post-btn').prop('disabled', !anyChecked);
+        }
+    });
+</script>
+{% endblock %}
