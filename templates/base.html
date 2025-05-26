@@ -180,9 +180,8 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="{% url 'accounts:password_change' %}"><i class="fas fa-user me-2"></i> الملف الشخصي / تغيير كلمة المرور</a></li>
-                            <li><a class="dropdown-item" href="{% url 'change_password' %}"><i class="fas fa-key me-2"></i> تغيير كلمة المرور</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i> تسجيل الخروج</a></li>
+                            <li><a class="dropdown-item" href="{% url 'accounts:logout' %}"><i class="fas fa-sign-out-alt me-2"></i> تسجيل الخروج</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -282,7 +281,7 @@
             
             {% if perms.assets.view_asset %}
             <li class="nav-item">
-                <a class="nav-link {% if 'reports/purchase' in request.path %}active{% endif %}" href="{% url 'reports:purchase_report' %}">
+                <a class="nav-link {% if 'reports/purchase' in request.path %}active{% endif %}" href="{% url 'reports:acquisition_report' %}">
                     <i class="fas fa-file-invoice"></i>
                     تقرير الشراء
                 </a>
@@ -304,27 +303,12 @@
             </li>
             {% endif %}
             
-            {% if perms.auth.view_group %}
-            <li class="nav-item">
-                <a class="nav-link {% if 'roles' in request.path %}active{% endif %}" href="{% url 'accounts:role_list' %}">
-                    <i class="fas fa-user-tag"></i>
-                    الأدوار والصلاحيات
-                </a>
-            </li>
-            {% endif %}
             
-            {% if perms.locations.view_location %}
-            <li class="nav-item">
-                <a class="nav-link {% if 'locations' in request.path %}active{% endif %}" href="{% url 'locations:location_list' %}">
-                    <i class="fas fa-map-marker-alt"></i>
-                    المواقع والفروع
-                </a>
-            </li>
-            {% endif %}
+
             
             {% if perms.employees.view_employee %}
             <li class="nav-item">
-                <a class="nav-link {% if 'employees' in request.path %}active{% endif %}" href="{% url 'employees:employee_list' %}">
+                <a class="nav-link {% if 'employees' in request.path %}active{% endif %}" href="">
                     <i class="fas fa-id-card"></i>
                     الموظفين
                 </a>

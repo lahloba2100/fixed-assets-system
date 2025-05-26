@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}إضافة أصل جديد{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h4>إضافة أصل جديد</h4>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary">حفظ الأصل</button>
+                <a href="{% url 'assets:asset_list' %}" class="btn btn-secondary">إلغاء</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

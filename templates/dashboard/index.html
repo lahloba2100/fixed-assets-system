@@ -13,8 +13,9 @@
     
     <!-- Stats Cards -->
     <div class="row">
+        <!-- Card 1: Active Assets -->
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-right-primary h-100">
+            <div class="card border-left-primary shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
@@ -27,16 +28,17 @@
                         </div>
                     </div>
                 </div>
-                <div class="card-footer bg-light">
-                    <a href="{% url 'assets:asset_list' %}" class="text-decoration-none">
-                        <small>عرض التفاصيل <i class="fas fa-arrow-left"></i></small>
+                <div class="card-footer bg-light py-1">
+                    <a href="{% url 'assets:asset_list' %}" class="text-xs text-decoration-none">
+                        عرض التفاصيل <i class="fas fa-arrow-circle-left"></i>
                     </a>
                 </div>
             </div>
         </div>
 
+        <!-- Card 2: Total Value -->
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-right-success h-100">
+            <div class="card border-left-success shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
@@ -49,16 +51,17 @@
                         </div>
                     </div>
                 </div>
-                <div class="card-footer bg-light">
-                    <a href="{% url 'reports:asset_report' %}" class="text-decoration-none">
-                        <small>عرض التقرير <i class="fas fa-arrow-left"></i></small>
+                <div class="card-footer bg-light py-1">
+                    <a href="{% url 'reports:asset_report' %}" class="text-xs text-decoration-none">
+                        عرض التقرير <i class="fas fa-arrow-circle-left"></i>
                     </a>
                 </div>
             </div>
         </div>
 
+        <!-- Card 3: Total Depreciation -->
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-right-info h-100">
+            <div class="card border-left-info shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
@@ -71,16 +74,17 @@
                         </div>
                     </div>
                 </div>
-                <div class="card-footer bg-light">
-                    <a href="{% url 'reports:depreciation_report' %}" class="text-decoration-none">
-                        <small>عرض التقرير <i class="fas fa-arrow-left"></i></small>
+                <div class="card-footer bg-light py-1">
+                    <a href="{% url 'reports:depreciation_report' %}" class="text-xs text-decoration-none">
+                        عرض التقرير <i class="fas fa-arrow-circle-left"></i>
                     </a>
                 </div>
             </div>
         </div>
 
+        <!-- Card 4: Disposed Assets -->
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-right-warning h-100">
+            <div class="card border-left-warning shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
@@ -93,9 +97,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="card-footer bg-light">
-                    <a href="{% url 'reports:disposal_report' %}" class="text-decoration-none">
-                        <small>عرض التقرير <i class="fas fa-arrow-left"></i></small>
+                <div class="card-footer bg-light py-1">
+                    <a href="{% url 'reports:disposal_report' %}" class="text-xs text-decoration-none">
+                        عرض التقرير <i class="fas fa-arrow-circle-left"></i>
                     </a>
                 </div>
             </div>
@@ -106,16 +110,16 @@
     <div class="row">
         <!-- Recent Assets -->
         <div class="col-lg-6 mb-4">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 font-weight-bold">أحدث الأصول المضافة</h6>
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">أحدث الأصول المضافة</h6>
                     <a href="{% url 'assets:asset_list' %}" class="btn btn-sm btn-primary">
                         عرض الكل
                     </a>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-bordered table-hover">
+                        <table class="table table-bordered table-hover" id="recentAssetsTable" width="100%" cellspacing="0">
                             <thead>
                                 <tr>
                                     <th>رقم الأصل</th>
@@ -150,16 +154,16 @@
 
         <!-- Recent Depreciation -->
         <div class="col-lg-6 mb-4">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 font-weight-bold">أحدث قيود الإهلاك</h6>
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">أحدث قيود الإهلاك</h6>
                     <a href="{% url 'assets:depreciation_management' %}" class="btn btn-sm btn-primary">
                         عرض الكل
                     </a>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-bordered table-hover">
+                        <table class="table table-bordered table-hover" id="recentDepreciationTable" width="100%" cellspacing="0">
                             <thead>
                                 <tr>
                                     <th>رقم الأصل</th>
@@ -203,12 +207,12 @@
     <div class="row">
         <!-- Assets by Group -->
         <div class="col-lg-6 mb-4">
-            <div class="card">
-                <div class="card-header">
-                    <h6 class="m-0 font-weight-bold">توزيع الأصول حسب المجموعة</h6>
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">توزيع الأصول حسب المجموعة</h6>
                 </div>
                 <div class="card-body">
-                    <div class="chart-container" style="position: relative; height:300px;">
+                    <div class="chart-container" style="position: relative; height:300px; width:100%">
                         <canvas id="assetsByGroupChart"></canvas>
                     </div>
                 </div>
@@ -217,12 +221,12 @@
 
         <!-- Assets by Location -->
         <div class="col-lg-6 mb-4">
-            <div class="card">
-                <div class="card-header">
-                    <h6 class="m-0 font-weight-bold">توزيع الأصول حسب الموقع</h6>
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">توزيع الأصول حسب الموقع</h6>
                 </div>
                 <div class="card-body">
-                    <div class="chart-container" style="position: relative; height:300px;">
+                    <div class="chart-container" style="position: relative; height:300px; width:100%">
                         <canvas id="assetsByLocationChart"></canvas>
                     </div>
                 </div>
@@ -233,40 +237,44 @@
     <!-- Quick Actions -->
     <div class="row">
         <div class="col-12 mb-4">
-            <div class="card">
-                <div class="card-header">
-                    <h6 class="m-0 font-weight-bold">إجراءات سريعة</h6>
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">إجراءات سريعة</h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         {% if perms.assets.add_asset %}
-                        <div class="col-md-3 col-sm-6 mb-3">
-                            <a href="{% url 'assets:asset_create' %}" class="btn btn-primary btn-block">
-                                <i class="fas fa-plus-circle me-2"></i> إضافة أصل جديد
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <a href="{% url 'assets:asset_create' %}" class="btn btn-primary btn-icon-split btn-lg w-100">
+                                <span class="icon text-white-50"><i class="fas fa-plus-circle"></i></span>
+                                <span class="text">إضافة أصل جديد</span>
                             </a>
                         </div>
                         {% endif %}
                         
                         {% if perms.assets.add_depreciationentry %}
-                        <div class="col-md-3 col-sm-6 mb-3">
-                            <a href="{% url 'assets:depreciation_management' %}" class="btn btn-info btn-block">
-                                <i class="fas fa-calculator me-2"></i> حساب الإهلاك
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <a href="{% url 'assets:depreciation_management' %}" class="btn btn-info btn-icon-split btn-lg w-100">
+                                <span class="icon text-white-50"><i class="fas fa-calculator"></i></span>
+                                <span class="text">حساب الإهلاك</span>
                             </a>
                         </div>
                         {% endif %}
                         
                         {% if perms.assets.add_assettransfer %}
-                        <div class="col-md-3 col-sm-6 mb-3">
-                            <a href="{% url 'assets:transfer_create' %}" class="btn btn-success btn-block">
-                                <i class="fas fa-exchange-alt me-2"></i> نقل أصل
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <a href="{% url 'assets:transfer_create' %}" class="btn btn-success btn-icon-split btn-lg w-100">
+                                <span class="icon text-white-50"><i class="fas fa-exchange-alt"></i></span>
+                                <span class="text">نقل أصل</span>
                             </a>
                         </div>
                         {% endif %}
                         
                         {% if perms.assets.view_asset %}
-                        <div class="col-md-3 col-sm-6 mb-3">
-                            <a href="{% url 'reports:asset_report' %}" class="btn btn-secondary btn-block">
-                                <i class="fas fa-file-alt me-2"></i> إنشاء تقرير
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <a href="{% url 'reports:asset_report' %}" class="btn btn-secondary btn-icon-split btn-lg w-100">
+                                <span class="icon text-white-50"><i class="fas fa-file-alt"></i></span>
+                                <span class="text">إنشاء تقرير</span>
                             </a>
                         </div>
                         {% endif %}
@@ -276,74 +284,137 @@
         </div>
     </div>
 </div>
+
+{# --- JSON Data for Charts --- #}
+{{ group_labels|json_script:"group-labels" }}
+{{ group_data|json_script:"group-data" }}
+{{ location_labels|json_script:"location-labels" }}
+{{ location_data|json_script:"location-data" }}
+
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script> {# Example: Using Chart.js v4.4.3 #}
 <script>
-    // Assets by Group Chart
-    var groupCtx = document.getElementById('assetsByGroupChart').getContext('2d');
-    var groupChart = new Chart(groupCtx, {
-        type: 'pie',
-        data: {
-            labels: {{ group_labels|safe }},
-            datasets: [{
-                data: {{ group_data|safe }},
-                backgroundColor: [
-                    '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b',
-                    '#5a5c69', '#858796', '#6f42c1', '#20c9a6', '#fd7e14'
-                ],
-                hoverBackgroundColor: [
-                    '#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#be2617',
-                    '#484a54', '#717384', '#5d36a4', '#17a689', '#dc6502'
-                ],
-                hoverBorderColor: "rgba(234, 236, 244, 1)",
-            }],
-        },
-        options: {
-            maintainAspectRatio: false,
-            tooltips: {
-                backgroundColor: "rgb(255,255,255)",
-                bodyFontColor: "#858796",
-                borderColor: '#dddfeb',
-                borderWidth: 1,
-                xPadding: 15,
-                yPadding: 15,
-                displayColors: false,
-                caretPadding: 10,
-            },
-            legend: {
-                display: true,
-                position: 'bottom'
-            },
-            cutoutPercentage: 0,
-        },
-    });
-
-    // Assets by Location Chart
-    var locationCtx = document.getElementById('assetsByLocationChart').getContext('2d');
-    var locationChart = new Chart(locationCtx, {
-        type: 'bar',
-        data: {
-            labels: {{ location_labels|safe }},
-            datasets: [{
-                label: 'عدد الأصول',
-                data: {{ location_data|safe }},
-                backgroundColor: '#4e73df',
-                borderColor: '#4e73df',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            maintainAspectRatio: false,
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }]
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to safely parse JSON data from script tags
+        function getJsonData(id) {
+            const element = document.getElementById(id);
+            if (!element) {
+                console.error(`Element with id '${id}' not found.`);
+                return null;
             }
+            try {
+                return JSON.parse(element.textContent);
+            } catch (e) {
+                console.error(`Error parsing JSON data from element with id '${id}':`, e);
+                return null;
+            }
+        }
+
+        // --- Assets by Group Chart (Pie) --- 
+        const groupLabels = getJsonData('group-labels');
+        const groupData = getJsonData('group-data');
+        const groupCtx = document.getElementById('assetsByGroupChart');
+
+        if (groupCtx && groupLabels && groupData) {
+            new Chart(groupCtx.getContext('2d'), {
+                type: 'pie',
+                data: {
+                    labels: groupLabels,
+                    datasets: [{
+                        data: groupData,
+                        backgroundColor: [
+                            '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b',
+                            '#5a5c69', '#858796', '#6f42c1', '#20c9a6', '#fd7e14'
+                            // Add more colors if needed
+                        ],
+                        hoverOffset: 4
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                        tooltip: {
+                            backgroundColor: "rgb(255,255,255)",
+                            titleColor: "#6e707e", // Title font color
+                            bodyColor: "#858796", // Body font color
+                            borderColor: '#dddfeb',
+                            borderWidth: 1,
+                            padding: 15,
+                            displayColors: false,
+                            caretPadding: 10,
+                        }
+                    }
+                },
+            });
+        } else {
+            console.error('Could not initialize Assets by Group chart. Missing canvas element or data.');
+        }
+
+        // --- Assets by Location Chart (Bar) --- 
+        const locationLabels = getJsonData('location-labels');
+        const locationData = getJsonData('location-data');
+        const locationCtx = document.getElementById('assetsByLocationChart');
+
+        if (locationCtx && locationLabels && locationData) {
+            new Chart(locationCtx.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: locationLabels,
+                    datasets: [{
+                        label: 'عدد الأصول',
+                        data: locationData,
+                        backgroundColor: 'rgba(78, 115, 223, 0.8)', // Slightly transparent blue
+                        borderColor: 'rgba(78, 115, 223, 1)',
+                        borderWidth: 1,
+                        hoverBackgroundColor: 'rgba(78, 115, 223, 1)',
+                        hoverBorderColor: 'rgba(78, 115, 223, 1)',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false // Hide vertical grid lines
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                // Ensure only whole numbers are shown on y-axis if needed
+                                precision: 0 
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false // Hide legend for bar chart as label is in dataset
+                        },
+                        tooltip: {
+                            backgroundColor: "rgb(255,255,255)",
+                            titleColor: "#6e707e",
+                            bodyColor: "#858796",
+                            borderColor: '#dddfeb',
+                            borderWidth: 1,
+                            padding: 15,
+                            displayColors: false,
+                            caretPadding: 10,
+                            // Add callbacks if you need to customize tooltip content
+                        }
+                    }
+                }
+            });
+        } else {
+            console.error('Could not initialize Assets by Location chart. Missing canvas element or data.');
         }
     });
 </script>
 {% endblock %}
+

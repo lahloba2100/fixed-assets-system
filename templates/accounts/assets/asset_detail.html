@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}تفاصيل الأصل: {{ asset.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4>تفاصيل الأصل: {{ asset.name }}</h4>
+            <div>
+                <a href="{% url 'assets:asset_update' asset.pk %}" class="btn btn-warning me-2"><i class="fas fa-edit me-1"></i> تعديل</a>
+                <a href="{% url 'assets:asset_delete' asset.pk %}" class="btn btn-danger" onclick="return confirm('هل أنت متأكد من حذف هذا الأصل؟');"><i class="fas fa-trash me-1"></i> حذف</a>
+                <a href="{% url 'assets:asset_list' %}" class="btn btn-secondary">العودة للقائمة</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>الاسم:</strong> {{ asset.name }}</p>
+                    <p><strong>الرمز:</strong> {{ asset.asset_code }}</p>
+                    <p><strong>الوصف:</strong> {{ asset.description|default:"-" }}</p>
+                    <p><strong>الفئة:</strong> {{ asset.category.name }}</p>
+                    <p><strong>الموقع:</strong> {{ asset.location.name }}</p>
+                    <p><strong>الموظف المسؤول:</strong> {{ asset.assigned_to.name|default:"-" }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>تاريخ الشراء:</strong> {{ asset.purchase_date|date:"Y-m-d" }}</p>
+                    <p><strong>تكلفة الشراء:</strong> {{ asset.purchase_cost }}</p>
+                    <p><strong>العمر الإنتاجي (سنوات):</strong> {{ asset.useful_life }}</p>
+                    <p><strong>قيمة الخردة:</strong> {{ asset.salvage_value }}</p>
+                    <p><strong>طريقة الإهلاك:</strong> {{ asset.get_depreciation_method_display }}</p>
+                    <p><strong>تاريخ الإضافة:</strong> {{ asset.created_at|date:"Y-m-d H:i" }}</p>
+                    <p><strong>آخر تحديث:</strong> {{ asset.updated_at|date:"Y-m-d H:i" }}</p>
+                </div>
+            </div>
+            
+            <hr>
+            <h5>سجل الإهلاك</h5>
+            {% if asset.depreciationentry_set.all %}
+            <table class="table table-sm table-bordered mt-3">
+                <thead>
+                    <tr>
+                        <th>التاريخ</th>
+                        <th>المبلغ</th>
+                        <th>القيمة الدفترية</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in asset.depreciationentry_set.all %}
+                    <tr>
+                        <td>{{ entry.entry_date|date:"Y-m-d" }}</td>
+                        <td>{{ entry.amount }}</td>
+                        <td>{{ entry.book_value }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>لا يوجد سجل إهلاك لهذا الأصل.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+

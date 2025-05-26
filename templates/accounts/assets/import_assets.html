@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}استيراد الأصول من Excel{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h4>استيراد الأصول من ملف Excel</h4>
+        </div>
+        <div class="card-body">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            <p>يرجى التأكد من أن ملف Excel يحتوي على الأعمدة التالية بالترتيب الصحيح:</p>
+            <ol>
+                <li>اسم الأصل (name)</li>
+                <li>رمز الأصل (asset_code)</li>
+                <li>الوصف (description) - اختياري</li>
+                <li>اسم الفئة (category_name) - يجب أن تكون الفئة موجودة مسبقاً</li>
+                <li>اسم الموقع (location_name) - يجب أن يكون الموقع موجوداً مسبقاً</li>
+                <li>تاريخ الشراء (purchase_date) - بتنسيق YYYY-MM-DD</li>
+                <li>تكلفة الشراء (purchase_cost)</li>
+                <li>العمر الإنتاجي بالسنوات (useful_life)</li>
+                <li>قيمة الخردة (salvage_value)</li>
+                <li>طريقة الإهلاك (depreciation_method) - استخدم 'SL' للقسط الثابت أو 'DB' للقسط المتناقص</li>
+            </ol>
+            
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="excel_file" class="form-label">اختر ملف Excel:</label>
+                    <input type="file" class="form-control" id="excel_file" name="excel_file" accept=".xlsx, .xls" required>
+                </div>
+                <button type="submit" class="btn btn-success">بدء الاستيراد</button>
+                <a href="{% url 'assets:asset_list' %}" class="btn btn-secondary">إلغاء</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
